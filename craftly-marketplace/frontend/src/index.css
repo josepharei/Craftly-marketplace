@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --color-indigo: #6366F1;
+  --color-indigo-dark: #4F46E5;
+  --color-emerald: #10B981;
+  --color-emerald-dark: #059669;
+  --color-amber: #F59E0B;
+  --color-amber-dark: #D97706;
+  --font-sans: "Inter", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply font-sans text-slate-900 bg-slate-50;
+  }
+}
+
+.btn {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 active:scale-95;
+}
+
+.btn-primary {
+  @apply btn bg-indigo text-white hover:bg-indigo-dark shadow-md hover:shadow-lg;
+}
+
+.btn-secondary {
+  @apply btn border border-indigo text-indigo hover:bg-indigo hover:text-white;
+}
+
+.btn-success {
+  @apply btn bg-emerald text-white hover:bg-emerald-dark shadow-md;
+}
+
+.card {
+  @apply bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow duration-300;
+}
