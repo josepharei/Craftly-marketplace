@@ -16,22 +16,22 @@
   }
 }
 
-.btn {
+@utility btn {
   @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 active:scale-95;
 }
 
-.btn-primary {
+@utility btn-primary {
   @apply btn bg-indigo text-white hover:bg-indigo-dark shadow-md hover:shadow-lg;
 }
 
-.btn-secondary {
+@utility btn-secondary {
   @apply btn border border-indigo text-indigo hover:bg-indigo hover:text-white;
 }
 
-.btn-success {
+@utility btn-success {
   @apply btn bg-emerald text-white hover:bg-emerald-dark shadow-md;
 }
 
-.card {
+@utility card {
   @apply bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow duration-300;
 }
