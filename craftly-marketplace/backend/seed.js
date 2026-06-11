@@ -36,24 +36,26 @@ const products = [
   }
 ];
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
 async function seed() {
   const sellerId = 'seed-seller-1';
+  console.log('Seeding database...');
   // Create a seed seller if doesn't exist
   try {
-    query(`INSERT INTO users (id, email, password, role, name) VALUES ('${sellerId}', 'seller@craftly.com', 'password', 'seller', 'Craftly Official')`);
-    await sleep(2000);
+    await query('INSERT INTO users (id, email, password, role, name) VALUES (?, ?, ?, ?, ?)', [sellerId, 'seller@craftly.com', 'password', 'seller', 'Craftly Official']);
   } catch (e) {
     // Ignore if exists
   }
 
   for (const product of products) {
     const id = uuidv4();
-    query(`INSERT INTO products (id, seller_id, title, description, price, category, thumbnail_url, file_url) VALUES ('${id}', '${sellerId}', '${product.title}', '${product.description}', ${product.price}, '${product.category}', '${product.thumbnail_url}', '${product.file_url}')`);
-    await sleep(2000);
+    try {
+      await query('INSERT INTO products (id, seller_id, title, description, price, category, thumbnail_url, file_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+        [id, sellerId, product.title, product.description, product.price, product.category, product.thumbnail_url, product.file_url]);
+    } catch (e) {
+      console.error('Error seeding product:', product.title, e.message);
+    }
   }
-  console.log('Seeded products');
+  console.log('Seeded products successfully.');
 }
 
 seed();

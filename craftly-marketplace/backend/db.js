@@ -1,12 +1,18 @@
-const { execSync } = require('child_process');
+const { createClient } = require('@libsql/client');
 
-function query(sql) {
+const client = createClient({
+  url: process.env.TEAM_DB_URL || 'file:local.db',
+  authToken: process.env.TEAM_DB_AUTH_TOKEN,
+});
+
+async function query(sql, params = []) {
   try {
-    // Escape single quotes for shell and wrap in double quotes for team-db
-    // Replace " with \" for the shell command
-    const safeSql = sql.replace(/"/g, '\\"');
-    const output = execSync(`team-db "${safeSql}"`, { encoding: 'utf-8' });
-    return JSON.parse(output);
+    const result = await client.execute({
+      sql: sql,
+      args: params
+    });
+    // Convert rows to the format expected by the app (array of objects)
+    return result.rows;
   } catch (error) {
     console.error('DB Error:', error.message);
     throw error;

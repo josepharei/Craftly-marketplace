@@ -34,9 +34,10 @@ app.post('/api/auth/register', async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   
   try {
-    query(`INSERT INTO users (id, email, password, role, name) VALUES ('${id}', '${email}', '${hashedPassword}', '${role || 'buyer'}', '${name}')`);
+    await query('INSERT INTO users (id, email, password, role, name) VALUES (?, ?, ?, ?, ?)', [id, email, hashedPassword, role || 'buyer', name]);
     res.status(201).json({ message: 'User registered' });
   } catch (err) {
+    console.error(err);
     res.status(400).json({ message: 'User already exists or error' });
   }
 });
@@ -44,7 +45,7 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
   try {
-    const users = query(`SELECT * FROM users WHERE email = '${email}'`);
+    const users = await query('SELECT * FROM users WHERE email = ?', [email]);
     if (users.length === 0) return res.status(400).json({ message: 'Invalid credentials' });
     
     const user = users[0];
@@ -54,70 +55,77 @@ app.post('/api/auth/login', async (req, res) => {
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, JWT_SECRET);
     res.json({ token, user: { id: user.id, email: user.email, role: user.role, name: user.name } });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
 // Product Routes
-app.get('/api/products', (req, res) => {
+app.get('/api/products', async (req, res) => {
   try {
-    const products = query(`SELECT * FROM products`);
+    const products = await query('SELECT * FROM products');
     res.json(products);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-app.get('/api/products/:id', (req, res) => {
+app.get('/api/products/:id', async (req, res) => {
   try {
-    const products = query(`SELECT * FROM products WHERE id = '${req.params.id}'`);
+    const products = await query('SELECT * FROM products WHERE id = ?', [req.params.id]);
     if (products.length === 0) return res.status(404).json({ message: 'Product not found' });
     res.json(products[0]);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-app.post('/api/products', authenticate, (req, res) => {
+app.post('/api/products', authenticate, async (req, res) => {
   if (req.user.role !== 'seller') return res.status(403).json({ message: 'Only sellers can add products' });
   
   const { title, description, price, category, thumbnail_url, file_url } = req.body;
   const id = uuidv4();
   try {
-    query(`INSERT INTO products (id, seller_id, title, description, price, category, thumbnail_url, file_url) VALUES ('${id}', '${req.user.id}', '${title}', '${description}', ${price}, '${category}', '${thumbnail_url}', '${file_url}')`);
+    await query('INSERT INTO products (id, seller_id, title, description, price, category, thumbnail_url, file_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [id, req.user.id, title, description, price, category, thumbnail_url, file_url]);
     res.status(201).json({ id, title });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
 // Order Routes
-app.post('/api/orders', authenticate, (req, res) => {
+app.post('/api/orders', authenticate, async (req, res) => {
   const { product_id, amount } = req.body;
   const id = uuidv4();
   try {
-    query(`INSERT INTO orders (id, buyer_id, product_id, amount, status) VALUES ('${id}', '${req.user.id}', '${product_id}', ${amount}, 'completed')`);
+    await query('INSERT INTO orders (id, buyer_id, product_id, amount, status) VALUES (?, ?, ?, ?, ?)', [id, req.user.id, product_id, amount, 'completed']);
     res.status(201).json({ message: 'Order placed', id });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-app.get('/api/orders/my-orders', authenticate, (req, res) => {
+app.get('/api/orders/my-orders', authenticate, async (req, res) => {
   try {
-    const orders = query(`SELECT o.*, p.title as product_title FROM orders o JOIN products p ON o.product_id = p.id WHERE o.buyer_id = '${req.user.id}'`);
+    const orders = await query('SELECT o.*, p.title as product_title FROM orders o JOIN products p ON o.product_id = p.id WHERE o.buyer_id = ?', [req.user.id]);
     res.json(orders);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-app.get('/api/orders/seller-sales', authenticate, (req, res) => {
+app.get('/api/orders/seller-sales', authenticate, async (req, res) => {
   if (req.user.role !== 'seller') return res.status(403).json({ message: 'Access denied' });
   try {
-    const orders = query(`SELECT o.*, p.title as product_title FROM orders o JOIN products p ON o.product_id = p.id WHERE p.seller_id = '${req.user.id}'`);
+    const orders = await query('SELECT o.*, p.title as product_title FROM orders o JOIN products p ON o.product_id = p.id WHERE p.seller_id = ?', [req.user.id]);
     res.json(orders);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
