@@ -1,0 +1,9 @@
+node_modules
+.env
+dist
+.vercel
+.output
+.next
+.cache
+*.log
+.data

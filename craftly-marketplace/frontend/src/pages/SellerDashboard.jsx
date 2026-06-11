@@ -16,7 +16,7 @@ const SellerDashboard = () => {
   useEffect(() => {
     const fetchSales = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/orders/seller-sales', {
+        const res = await axios.get('/api/orders/seller-sales', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setSales(res.data);
@@ -32,7 +32,7 @@ const SellerDashboard = () => {
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/products', newProduct, {
+      await axios.post('/api/products', newProduct, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('Product added successfully!');

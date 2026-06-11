@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -10,7 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
 // Middleware to verify JWT
@@ -62,6 +63,7 @@ app.post('/api/auth/login', async (req, res) => {
 
 // Product Routes
 app.get('/api/products', async (req, res) => {
+  console.log('GET /api/products');
   try {
     const products = await query('SELECT * FROM products');
     res.json(products);
@@ -128,6 +130,14 @@ app.get('/api/orders/seller-sales', authenticate, async (req, res) => {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
+});
+
+// Serve static files from the React app
+app.use(express.static('public'));
+
+// Catch-all route to serve the React app's index.html
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {

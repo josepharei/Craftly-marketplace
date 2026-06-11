@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: craftly-backend
+    env: node
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: TEAM_DB_URL
+        fromContext: TEAM_DB_URL
+      - key: TEAM_DB_AUTH_TOKEN
+        fromContext: TEAM_DB_AUTH_TOKEN
+      - key: JWT_SECRET
+        generateValue: true

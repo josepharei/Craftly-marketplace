@@ -12,7 +12,7 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/products/${id}`);
+        const res = await axios.get(`/api/products/${id}`);
         setProduct(res.data);
       } catch (err) {
         console.error(err);
@@ -31,7 +31,7 @@ const ProductDetail = () => {
     }
     
     try {
-      await axios.post('http://localhost:5000/api/orders', 
+      await axios.post('/api/orders', 
         { product_id: product.id, amount: product.price },
         { headers: { Authorization: `Bearer ${token}` } }
       );
